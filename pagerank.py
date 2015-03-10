@@ -106,7 +106,15 @@ def scrape(baseurl):
 
     q.put(baseurl)
 
+    start = time.time()
+    counter = 0
+
     while not q.empty():
+        counter += 1
+        if counter % 10 == 0:
+            diff = time.time() - start
+            print("processed: ", counter, "sites in ", diff, "seconds")
+            print("processing at ", counter/diff, "sites/second")
         url = q.get()
         visited.add(url)
         print("queue not empty, now processing ", url)
@@ -126,6 +134,9 @@ def scrape(baseurl):
         links = doc.find_all("a")
         for link in links:
             target = link.get("href")
+            # some links are weird and don't have a href attribute. we want to skip those
+            if not target:
+                continue
             print("link found: ", target)
             if not reg_exp.match(target):
                 print("link does not match subdomain")
