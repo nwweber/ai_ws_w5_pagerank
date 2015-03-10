@@ -2,9 +2,10 @@ import os
 import queue
 import re
 import shutil
-import urllib
+import urllib.request
 from bs4 import BeautifulSoup
 import numpy as np
+import time
 
 __author__ = 'niklas'
 
@@ -107,11 +108,16 @@ def scrape(baseurl):
 
     while not q.empty():
         url = q.get()
+        visited.add(url)
         print("queue not empty, now processing ", url)
         print("current length of queue: ", q.qsize())
+        t = 0.3
+        print("sleeping for ", t, "seconds")
+        time.sleep(t)
         links_to = set()
         storage_dir = os.path.join(".", "scraped")
-        fname = os.path.join(storage_dir, hash(url))
+        fname = os.path.join(storage_dir, str(hash(url)))
+        print("scraping from ", url, "to ", fname)
         file_name_temp, headers = urllib.request.urlretrieve(url)
         shutil.copy(file_name_temp, fname)
         with open(fname, "r") as f:
@@ -128,7 +134,6 @@ def scrape(baseurl):
                 print("link not visited yet, adding to queue")
                 q.put(target)
             links_to.add(target)
-        visited.add(url)
         from_to[url] = links_to
 
     all_sites = list(visited)
