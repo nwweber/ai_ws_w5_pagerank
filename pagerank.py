@@ -1,3 +1,4 @@
+import hashlib
 import os
 import queue
 import re
@@ -6,6 +7,7 @@ import urllib.request
 from bs4 import BeautifulSoup
 import numpy as np
 import time
+import sys
 
 __author__ = 'niklas'
 
@@ -119,16 +121,20 @@ def scrape(baseurl):
         visited.add(url)
         print("queue not empty, now processing ", url)
         print("current length of queue: ", q.qsize())
-        t = 0.3
-        print("sleeping for ", t, "seconds")
-        time.sleep(t)
         links_to = set()
         storage_dir = os.path.join(".", "scraped")
-        fname = os.path.join(storage_dir, str(hash(url)))
-        print("scraping from ", url, "to ", fname)
-        file_name_temp, headers = urllib.request.urlretrieve(url)
-        shutil.copy(file_name_temp, fname)
-        with open(fname, "r") as f:
+        fname = os.path.join(storage_dir, hashlib.md5(bytes(url, sys.getdefaultencoding())).hexdigest())
+        if not os.path.isfile(fname):
+            print("fname is file? ", fname, os.path.isfile(fname))
+            t = 0.3
+            print("sleeping for ", t, "seconds")
+            time.sleep(t)
+            print("scraping from ", url, "to ", fname)
+            file_name_temp, headers = urllib.request.urlretrieve(url)
+            shutil.copy(file_name_temp, fname)
+        else:
+            print("url ", url, "already downloaded, using that file instead")
+        with open(fname, "r", encoding=sys.getdefaultencoding()) as f:
             html = f.read()
         doc = BeautifulSoup(html)
         links = doc.find_all("a")
