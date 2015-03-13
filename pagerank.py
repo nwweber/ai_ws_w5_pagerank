@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import time
 import sys
+import pickle
 
 __author__ = 'niklas'
 
@@ -168,5 +169,34 @@ def scrape(baseurl):
 
     return all_sites, m
 
+
+def normalize_rows(X):
+    """
+    Normalize X row-wise
+    :param X: nd-array
+    :return: another array where for each row : row.sum() == 1
+    """
+    row_sums = X.sum(axis=1)
+    # The division operation will be broadcast along the rows (axis=0)
+    # This is the opposite of what we want. So we transpose X first, then transpose the result back :)
+    return (X.T / row_sums).T
+
+
+def fill_empty_rows(Q_star):
+    pass
+
+
 if __name__ == "__main__":
-    site_names, conn_matrix = scrape("http://www.ru.nl/artificialintelligence/")
+    crawl = False
+    pickle_name = "data.pickle"
+    if crawl:
+        site_names, conn_matrix = scrape("http://www.ru.nl/artificialintelligence/")
+        with open(pickle_name, "wb") as f:
+            pickle.dump((site_names, conn_matrix), f)
+    else:
+        with open(pickle_name, "rb") as f:
+            site_names, conn_matrix = pickle.load(f)
+    X = conn_matrix
+    Q_star = normalize_rows(X)
+    Q = fill_empty_rows(Q_star)
+    ranks = compute_pagerank(Q)
