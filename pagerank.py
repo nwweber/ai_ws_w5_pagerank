@@ -186,6 +186,32 @@ def fill_empty_rows(Q_star):
     pass
 
 
+def fill_and_normalize(X):
+    """
+    Fill empty rows with 1s. Then normalize by row
+    :param X: NP array
+    :return: Ref to changed array.
+    """
+    row_sums = X.sum(axis=1)
+    mask = row_sums == 0
+    X[mask] = 1
+    row_sums = X.sum(axis=1)
+    X = (X.T / row_sums).T
+    return X
+
+
+def compute_pagerank(Q):
+    """
+    Approximate the stationary distribution for Q
+    :param Q: Normalized socio matrix
+    :return: A vector, one element per page in Q, each element being its rank
+    """
+    J = np.ones(Q.shape)
+    m = Q.shape[0]
+    alpha = 0.85
+    G = alpha * Q + (1 - alpha) * (J / m)
+
+
 if __name__ == "__main__":
     crawl = False
     pickle_name = "data.pickle"
@@ -197,6 +223,5 @@ if __name__ == "__main__":
         with open(pickle_name, "rb") as f:
             site_names, conn_matrix = pickle.load(f)
     X = conn_matrix
-    Q_star = normalize_rows(X)
-    Q = fill_empty_rows(Q_star)
+    Q = fill_and_normalize(X)
     ranks = compute_pagerank(Q)
