@@ -9,6 +9,7 @@ import numpy as np
 import time
 import sys
 import pickle
+import matplotlib.pyplot as plt
 
 __author__ = 'niklas'
 
@@ -212,7 +213,23 @@ def compute_pagerank(Q):
     G = alpha * Q + (1 - alpha) * (J / m)
     s = np.random.uniform(0, 1, m)
     s = s / s.sum()
+    history = []
+    for i in range(50):
+        s = np.dot(s, G)
+        history.append(s.copy())
+    return history
 
+
+def plot_ranks_history(ranks_history):
+    """
+    Show how ranks change over time
+    :param ranks_history: a list, each element a ndarray vector of ranks at that iteration
+    :return:
+    """
+    h = np.array(ranks_history).T
+    for row in h:
+        plt.plot(row)
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -227,4 +244,5 @@ if __name__ == "__main__":
             site_names, conn_matrix = pickle.load(f)
     X = conn_matrix
     Q = fill_and_normalize(X)
-    ranks = compute_pagerank(Q)
+    ranks_history = compute_pagerank(Q)
+    plot_ranks_history(ranks_history)
