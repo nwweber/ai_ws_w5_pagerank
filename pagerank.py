@@ -186,6 +186,11 @@ def normalize_rows(X):
 def fill_empty_rows(Q_star):
     pass
 
+def fill_and_norrmalize(X):
+    row_sums = X.sum(axis=1)
+    rsmask = row_sums == 0
+    X = (X[rsmask] + 1/X.shape[0]) + (X[~ rsmask].T / row_sums[~ rsmask]).T
+    return X
 
 def fill_and_normalize(X):
     """
