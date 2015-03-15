@@ -210,6 +210,9 @@ def compute_pagerank(Q):
     m = Q.shape[0]
     alpha = 0.85
     G = alpha * Q + (1 - alpha) * (J / m)
+    s = np.random.uniform(0, 1, m)
+    s = s / s.sum()
+
 
 
 if __name__ == "__main__":
