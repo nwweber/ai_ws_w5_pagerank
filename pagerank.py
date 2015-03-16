@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import queue
 import re
@@ -237,6 +238,16 @@ def plot_ranks_history(ranks_history):
     plt.show()
 
 
+def dump_to_json(site_names, ranks_history):
+    """
+    dump site names and ranks history to JSON
+    :param site_names:
+    :param ranks_history:
+    :return:
+    """
+    with open("pagerank_data.json", "w") as f:
+        json.dumps({"site_names": site_names, "ranks_history": [el.tolist() for el in ranks_history]}, f)
+
 if __name__ == "__main__":
     crawl = False
     pickle_name = "data.pickle"
@@ -250,4 +261,5 @@ if __name__ == "__main__":
     X = conn_matrix
     Q = fill_and_normalize(X)
     ranks_history = compute_pagerank(Q)
+    dump_to_json(site_names, ranks_history)
     plot_ranks_history(ranks_history)
